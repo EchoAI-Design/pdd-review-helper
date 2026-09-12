@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>评价巡检助手</title><link rel="stylesheet" href="app.css"><link rel="stylesheet" href="panel.css"><link rel="stylesheet" href="query.css"></head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">评</span><div>评价巡检助手<small>拼多多商家 · 查询版 0.4.0</small></div><button id="close-panel" class="quiet panel-only" title="收起面板" aria-label="收起面板">‹</button></div>
+    <div class="nav active">▤　评价工作台</div>
+    <div class="side-label">当前登录店铺</div>
+    <label for="tab" class="tab-label">商家页面</label><select id="tab"></select>
+    <div class="binding"><span class="dot"></span><span id="binding">正在识别当前店铺…</span></div>
+    <p id="detection" class="muted small">自动读取页面显示的店铺名称</p>
+    <div class="connection-actions"><button id="refresh" class="quiet">重新识别</button><button id="bind" class="quiet" disabled>手动选择</button></div>
+    <div class="side-label">任务记录</div><select id="tasks" aria-label="选择扫描任务"></select>
+    <button id="diagnostic" class="quiet" disabled>导出页面诊断</button>
+    <button id="open-full" class="quiet panel-only">展开完整工作台 ↗</button>
+    <div class="side-foot">数据保存在本机浏览器<br>平台举报须手动确认提交</div>
+  </aside>
+  <main>
+    <header><div><div class="eyebrow">REVIEW WORKSPACE</div><h1>评价巡检</h1><p class="muted" id="query-subtitle">默认近30天 · 1 / 2 / 3 星 · 自动翻页</p></div><span class="version">查询与核验</span></header>
+    <div id="notice" role="status" hidden></div>
+    <section class="control card">
+      <fieldset id="query-fields" class="query-fields">
+        <legend>查询条件</legend>
+        <label for="query-date">评价时间</label><select id="query-date"><option>近30天</option><option>近90天</option><option>近180天</option></select>
+        <label>用户评价得分</label><div class="rating-choices" aria-label="用户评价得分">
+          <label><input type="checkbox" name="query-star" value="1" checked>1星</label><label><input type="checkbox" name="query-star" value="2" checked>2星</label><label><input type="checkbox" name="query-star" value="3" checked>3星</label><label><input type="checkbox" name="query-star" value="4">4星</label><label><input type="checkbox" name="query-star" value="5">5星</label>
+        </div>
+        <details id="advanced-query"><summary>更多条件：内容、标签、订单</summary>
+          <label>评价内容</label><div class="content-choices"><label><input type="checkbox" name="query-content" value="有图片">有图片</label><label><input type="checkbox" name="query-content" value="有视频">有视频</label><label><input type="checkbox" name="query-content" value="主评有文字">主评有文字</label><label><input type="checkbox" name="query-content" value="有追加评价">有追加评价</label><label><input type="checkbox" name="query-content" value="已举报">已举报</label></div>
+          <label for="query-tag">评价标签</label><select id="query-tag"><option value="">不限标签</option></select>
+          <label for="query-reply">商家回复</label><select id="query-reply"><option>不限</option><option>已回复</option><option>未回复</option></select>
+          <label class="checkbox"><input type="checkbox" id="query-reward">参与评价有礼</label>
+          <label for="query-order">订单编号</label><input id="query-order" placeholder="请输入订单编号" maxlength="80">
+          <label for="query-product">商品ID</label><input id="query-product" placeholder="请输入商品ID" maxlength="80">
+          <label for="query-keyword">关键词</label><input id="query-keyword" placeholder="查询评价关键词" maxlength="200">
+        </details>
+        <button id="reset-query" class="quiet" type="button">重置为近30天 · 1—3星</button>
+      </fieldset>
+      <div><div class="status-line"><span id="status" class="pill">待开始</span><strong id="shop-title">先连接当前店铺</strong></div><p id="progress" class="muted">绑定店铺后，开始采集评价列表。</p></div>
+      <div class="account-mapping"><p id="account-match" class="muted small">尚未导入账号表行号映射</p><button id="import-accounts" class="quiet" type="button">导入店铺行号映射</button><input id="account-file" type="file" accept=".json,application/json" hidden></div>
+      <div class="buttons"><button id="start" class="primary" disabled>查询</button><button id="resume" disabled>继续查询</button><button id="pause" disabled>暂停</button><button id="stop" class="quiet" disabled>停止</button></div>
+      <div id="star-progress" class="star-progress"><span>1星 · 待扫描</span><span>2星 · 待扫描</span><span>3星 · 待扫描</span></div>
+    </section>
+    <div class="metrics">
+      <div class="card"><span>本轮已采集</span><strong id="total">0</strong><small>以分页数量核对完整性</small></div>
+      <div class="card"><span>明确已举报</span><strong id="reported">0</strong><small>从后续核验队列中排除</small></div>
+      <div class="card"><span>有举报入口</span><strong id="available">0</strong><small>需要事实与证据核验</small></div>
+      <div class="card"><span>状态不明 / 冲突</span><strong id="uncertain">0 / 0</strong><small>保留记录，等待人工检查</small></div>
+    </div>
+    <section class="workspace card">
+      <div class="batch-toolbar">
+        <button id="batch-report" class="primary" disabled>批量举报已核验评价（0条）</button>
+        <p id="batch-help" class="muted small">仅处理本任务已保存且事实、证据已核验的记录。平台提交由你确认，确认已举报后自动处理下一条。</p>
+        <p id="batch-progress" class="small" role="status">尚未开始批量处理</p>
+        <div class="buttons"><button id="batch-resume" disabled>继续批量</button><button id="batch-skip" disabled>跳过当前条</button><button id="batch-export" disabled>导出批量记录</button></div>
+      </div>
+      <div class="section-top"><div><h2>评价清单 <span id="visible-count"></span></h2><p class="muted small">无文字与有文字仅作内容分类，不会自动推断举报原因。</p></div><div class="buttons"><button id="csv" disabled>导出 CSV</button><button id="json" disabled>备份 JSON</button></div></div>
+      <div class="filters"><input id="search" type="search" placeholder="搜索订单编号、商品或评价内容" aria-label="搜索评价"><select id="filter"><option value="all">全部本轮记录</option><option value="available">有举报入口</option><option value="reported">已举报</option><option value="unknown">状态不明</option><option value="pending">待核验</option><option value="verified">已核验，未提交</option><option value="no_text">无文字评价</option><option value="conflict">内容冲突</option><option value="history">历史记录</option></select></div>
+      <div class="table-wrap"><table><thead><tr><th>评价与订单</th><th>星级 / 时间</th><th>举报状态</th><th>核验</th><th></th></tr></thead><tbody id="rows"></tbody></table><div id="empty" class="empty"><div class="empty-icon">▤</div><strong>评价清单在这里汇总</strong><p>开始扫描后，每页结果会自动保存。<br>页面中断后可从第1页复核并去重合并。</p></div></div>
+      <div class="table-footer"><span id="page-label">第 1 页</span><div class="buttons"><button id="prev">上一页</button><button id="next">下一页</button></div></div>
+    </section>
+    <section class="logs card"><div class="section-top"><h2>任务日志</h2><button id="summary" class="quiet" disabled>导出店铺扫描汇总</button></div><ol id="logs"><li>等待开始查询。</li></ol><p class="muted small">只有所选星级均到达末页且条数一致，才会显示“扫描完成”。查询不会增加举报条数。</p></section>
+    <footer><span id="submitted">本次实际举报：0 条</span><button id="delete" class="quiet danger" disabled>删除当前本地任务</button></footer>
+  </main>
+  <dialog id="review-dialog">
+    <form id="review-form"><div class="section-top"><h2>核验这条评价</h2><button id="close-review" type="button" aria-label="关闭">✕</button></div>
+      <p id="review-meta" class="muted small"></p><blockquote id="review-content"></blockquote><p id="review-warning" class="small warning"></p>
+      <label for="review-status">核验结果</label><select id="review-status"><option value="pending">待核验</option><option value="excluded">不举报</option><option value="verified">已核验（仅保存，未提交）</option></select>
+      <label for="reason">拟选原因</label><select id="reason"><option value="">请选择实际适用的原因</option><option>评价内容异常</option><option>星级与内容矛盾</option><option>利用评价要挟</option><option>同行恶意差评</option></select>
+      <label for="facts">具体事实</label><textarea id="facts" rows="4" maxlength="5000" placeholder="根据这一条评价与实际沟通记录填写；核验完成至少20字。"></textarea>
+      <label for="evidence">证据位置或说明</label><textarea id="evidence" rows="2" maxlength="2000" placeholder="例如：订单客服记录的时间、相关截图文件名。批量处理需至少5字的证据说明；此处不上传附件。"></textarea>
+      <label class="checkbox"><input id="attested" type="checkbox">我已核实本条事实，所选原因有对应依据。</label>
+      <p id="review-error" class="warning" role="alert"></p><button class="primary" id="save-review" type="submit">保存核验记录</button>
+      <button id="open-report" type="button" disabled>打开并填写平台举报表单</button><p class="muted small">仅使用本条已核验的事实。平台表单需核对证据并手动提交；打开或填写表单不计作举报成功。</p>
+    </form>
+  </dialog>
+  <script src="core.js"></script><script src="app.js"></script>
+</body></html>

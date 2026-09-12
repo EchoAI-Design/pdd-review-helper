@@ -1,0 +1,16 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>评价管理 · 离线测试</title>
+<style>body{font:14px sans-serif;color:#333;margin:25px}#shop{position:absolute;right:25px;top:20px}main{margin-top:60px}.filters{display:flex;gap:18px;margin:18px 0}button{color:#333;background:white;border:1px solid #ccc;padding:7px;cursor:pointer}.selected{color:#146ae0}table{width:100%;margin:18px 0;border-collapse:collapse}td{border:1px solid #ddd;padding:15px}.pagination{display:flex;gap:18px}.disabled{opacity:.3}</style>
+<span id="shop">模拟运动店铺</span><main><div class="filters" id="days"><button>近30天</button><button class="selected">近90天</button><button>近180天</button></div>
+<div class="filters" id="stars"><button>1星</button><button>2星</button><button>3星</button><button>4星</button><button>5星</button></div>
+<button id="reset">重置</button><button id="query">查询</button><div id="result"></div></main>
+<script>
+window.actions=[];window.mode='normal';window.queryDelay=50;let currentStar=1,currentPage=1;
+document.querySelectorAll('.filters').forEach(group=>group.addEventListener('click',e=>{if(e.target.tagName!=='BUTTON')return;group.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));e.target.classList.add('selected')}));
+document.querySelector('#reset').onclick=()=>{actions.push('reset');document.querySelectorAll('.filters button').forEach(b=>b.classList.remove('selected'));document.querySelectorAll('#days button')[1].classList.add('selected')};
+document.querySelector('#query').onclick=()=>{actions.push('query');currentStar=Number(document.querySelector('#stars .selected')?.textContent[0]||1);currentPage=1;load()};
+const data={1:[{id:'10001',text:'该用户未填写文字评价',action:'举报'},{id:'10002',text:'做工与预期不符',action:'已举报'},{id:'10003',text:'尺码不合适',action:'回复'}],2:[],3:[{id:'30001',text:'包装有些破损',action:'举报'}]};
+function load(){if(mode==='stuck')return;document.querySelector('#result').innerHTML='<div aria-busy="true">加载中</div>';setTimeout(render,queryDelay)}
+function render(){const list=data[currentStar]||[],total=mode==='cap'?2000:list.length,rows=list.slice((currentPage-1)*2,currentPage*2);document.querySelector('#result').innerHTML=`<p>共查询到 ${total} 条数据（未包含默认评价）</p>`+(rows.length?rows.map(r=>`<table data-review-id="${r.id}"><tr><td colspan="4">用户评价分：<span data-rating="${currentStar}">${'★'.repeat(currentStar)}</span> 被点赞数：0</td></tr><tr><td>${r.text}<div>2026-09-08 12:30:00</div></td><td>订单编号：260908-${r.id}<div>商品ID: 900123</div></td><td>评价标签</td><td><a>查看订单</a><button class="report-action">${r.action}</button><a>回复/互动</a></td></tr></table>`).join(''):`<div>暂无数据</div>`)+`<div class="pagination"><span>每页 2 条</span><span aria-current="page">${currentPage}</span><button title="下一页" ${currentPage*2>=list.length?'disabled':''}>下一页</button></div>`;
+document.querySelector('[title="下一页"]').onclick=()=>{actions.push('next');currentPage++;load()};document.querySelectorAll('.report-action').forEach(b=>b.onclick=()=>{actions.push('REPORT_CLICK');throw Error('不得点击举报')});}
+render();
+</script></html>

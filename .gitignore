@@ -1,0 +1,19 @@
+# Only application source, tests and repository documentation belong in Git.
+/*
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/pdd-review-helper/
+!/tests/
+
+node_modules/
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.xlsx
+*.xls
+*.csv
+*.rar
+*.zip
